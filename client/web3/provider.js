@@ -1,19 +1,25 @@
 import Web3 from 'web3';
-import contract from 'truffle-contract';
 
-const provider = () => {
-  if (typeof web3 !== 'undefined') {
-    return web3.currentProvider;
+let firstTime = true;
+
+export const loadWeb3 = async () => {
+  if (window.ethereum) {
+    window.web3 = new Web3(window.ethereum);
+    await window.ethereum.enable();
+  } else if (window.web3) {
+    window.web3 = new Web3(window.web3.currentProvider);
   } else {
-    console.error('You need to install MetaMask');
+    window.alert('Non-Ethereum browser detected!');
   }
 };
 
-export const getInstance = (artifact) => {
-  const contractObject = contract(artifact);
-  contractObject.setProvider(provider());
+export const getInstance = async (artifact) => {
+  const web3 = window.web3;
 
-  return contractObject.deployed();
+  const contractObject = new web3.eth.Contract(
+    artifact.abi,
+    artifact.networks[5777].address
+  );
+
+  return contractObject;
 };
-
-export const eth = new Web3(provider()).eth;
