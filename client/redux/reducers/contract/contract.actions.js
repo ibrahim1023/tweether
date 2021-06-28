@@ -46,3 +46,70 @@ export const loadContracts = () => async (dispatch) => {
     }
   });
 };
+
+export const createUser = (username) => async (dispatch, getState) => {
+  dispatch({ type: ContractActionTypes.CREATE_USER_START });
+
+  const {
+    contract: { account, userController }
+  } = getState();
+
+  try {
+    const result = await userController.methods
+      .createUser(web3.utils.fromAscii(username))
+      .send({
+        from: account
+      });
+
+    // return result;
+  } catch (error) {
+    console.error('Error: ', error);
+  }
+
+  dispatch({ type: ContractActionTypes.CREATE_USER_END });
+};
+
+export const getUser = (userId) => async (dispatch, getState) => {
+  dispatch({ type: ContractActionTypes.GET_USER_START });
+
+  const {
+    contract: { userStorage }
+  } = getState();
+
+  const profile = await userStorage.methods.profiles(userId).call();
+
+  console.log('Profile: ', web3.utils.toAscii(profile.username));
+
+  dispatch({ type: ContractActionTypes.GET_USER_START });
+};
+
+export const createTweet = (text) => async (dispatch, getState) => {
+  dispatch({ type: ContractActionTypes.CREATE_TWEET_START });
+
+  const {
+    contract: { tweetController, account }
+  } = getState();
+
+  try {
+    const result = await tweetController.methods.createTweet(1, text).send({
+      from: account
+    });
+  } catch (error) {
+    console.error('Error: ', error);
+  }
+
+  dispatch({ type: ContractActionTypes.CREATE_TWEET_END });
+};
+
+export const getTweet = (tweetId) => async (dispatch, getState) => {
+  dispatch({ type: ContractActionTypes.GET_TWEET_START });
+
+  const {
+    contract: { tweetStorage }
+  } = getState();
+
+  const tweet = await tweetStorage.methods.tweets(tweetId).call();
+  console.log('Tweet: ', tweet);
+
+  dispatch({ type: ContractActionTypes.GET_TWEET_END });
+};
