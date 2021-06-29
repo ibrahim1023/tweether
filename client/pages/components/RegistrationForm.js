@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+
+import { createUser } from '../../redux/reducers/contract/contract.actions';
 
 import Button from './Button';
 
@@ -49,10 +52,22 @@ const RegistrationForm = ({ onClose }) => {
   const [gravatarEmail, setGravatarEmail] = useState('');
   const [bio, setBio] = useState('');
 
-  const createUser = () => {};
+  const dispatch = useDispatch();
+
+  const createUserHandler = (e) => {
+    e.preventDefault();
+
+    try {
+      dispatch(
+        createUser({ username, firstName, lastName, bio, gravatarEmail })
+      );
+    } catch (error) {
+      alert(`Sorry we couldn't create your account: ${error}`);
+    }
+  };
 
   return (
-    <form onSubmit={createUser}>
+    <form onSubmit={createUserHandler}>
       <h3>Create your account</h3>
 
       <Input
@@ -75,7 +90,7 @@ const RegistrationForm = ({ onClose }) => {
       <Input title='Bio' onChange={(e) => setBio(e.target.value)} />
 
       <footer>
-        <Button onClick={createUser}>Create</Button>
+        <Button onClick={createUserHandler}>Create</Button>
       </footer>
 
       <style jsx>{`

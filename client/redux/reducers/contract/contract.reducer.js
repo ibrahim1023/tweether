@@ -6,7 +6,9 @@ const INITIAL_STATE = {
   userStorage: null,
   userController: null,
   tweetStorage: null,
-  tweetController: null
+  tweetController: null,
+  user: null,
+  loggedIn: false
 };
 
 const contractReducer = (state = INITIAL_STATE, action) => {
@@ -17,6 +19,10 @@ const contractReducer = (state = INITIAL_STATE, action) => {
       return { ...state, loading: true };
     case ContractActionTypes.CREATE_USER_END:
       return { ...state, loading: false };
+    case ContractActionTypes.GET_LOGGED_IN_USER_START:
+      return { ...state, loading: true };
+    case ContractActionTypes.GET_LOGGED_IN_USER_SUCCESS:
+      return { ...state, loading: false, user: action.payload, loggedIn: true };
     case ContractActionTypes.GET_USER_START:
       return { ...state, loading: true };
     case ContractActionTypes.GET_USER_END:

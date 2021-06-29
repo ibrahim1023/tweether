@@ -47,26 +47,59 @@ export const loadContracts = () => async (dispatch) => {
   });
 };
 
-export const createUser = (username) => async (dispatch, getState) => {
+export const createUser = (params) => async (dispatch, getState) => {
   dispatch({ type: ContractActionTypes.CREATE_USER_START });
 
   const {
     contract: { account, userController }
   } = getState();
 
+  const username = web3.utils.fromAscii(params.username);
+  const firstName = web3.utils.fromAscii(params.firstName);
+  const lastName = web3.utils.fromAscii(params.lastName);
+
   try {
-    const result = await userController.methods
-      .createUser(web3.utils.fromAscii(username))
+    await userController.methods
+      .createUser(
+        username,
+        firstName,
+        lastName,
+        params.bio,
+        params.gravatarEmail
+      )
       .send({
         from: account
       });
-
-    // return result;
   } catch (error) {
     console.error('Error: ', error);
   }
 
   dispatch({ type: ContractActionTypes.CREATE_USER_END });
+};
+
+export const getLoggedInUser = () => async (dispatch, getState) => {
+  dispatch({ type: ContractActionTypes.GET_LOGGED_IN_USER_START });
+
+  const {
+    contract: { account, userStorage }
+  } = getState();
+
+  const userId = await userStorage.methods.addresses(account).call();
+  const profile = await userStorage.methods.profiles(userId).call();
+
+  const user = {
+    id: userId,
+    username: web3.utils.toAscii(profile.username),
+    firstName: web3.utils.toAscii(profile.firstName),
+    lastName: web3.utils.toAscii(profile.lastName),
+    bio: profile.bio,
+    gravatarEmail: profile.gravatarEmail
+  };
+
+  dispatch({
+    type: ContractActionTypes.GET_LOGGED_IN_USER_SUCCESS,
+    payload: user
+  });
 };
 
 export const getUser = (userId) => async (dispatch, getState) => {

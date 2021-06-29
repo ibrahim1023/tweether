@@ -1,9 +1,9 @@
-import HomePage from './components/HomePage';
+import HomePage from './HomePage';
 
 export default function App() {
   return (
     <div>
-      <title>My Cool App</title>
+      <title>Tweether</title>
       <HomePage />
     </div>
   );

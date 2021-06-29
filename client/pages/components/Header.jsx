@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
+import { useSelector, useDispatch } from 'react-redux';
 
 import { Center } from './Layout';
 import Logotype from '../../icons/logotype.svg';
+import Nav from './Nav';
 
 const Header = () => {
+  const { user, loggedIn } = useSelector((state) => state.contract);
+
   return (
     <header>
       <Center>
@@ -13,6 +17,8 @@ const Header = () => {
             <Logotype />
           </a>
         </Link>
+
+        <nav>{loggedIn && <Nav userInfo={user} />}</nav>
       </Center>
 
       <style jsx>{`
