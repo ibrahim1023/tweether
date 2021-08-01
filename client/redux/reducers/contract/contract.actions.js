@@ -7,7 +7,7 @@ import UserController from '../../../web3/artifacts/UserController.json';
 import TweetStorage from '../../../web3/artifacts/TweetStorage.json';
 import TweetController from '../../../web3/artifacts/TweetController.json';
 
-export const loadContracts = () => async (dispatch) => {
+export const loadContracts = () => async (dispatch, getState) => {
   await loadWeb3();
 
   const networkId = 5777;
@@ -45,6 +45,27 @@ export const loadContracts = () => async (dispatch) => {
       tweetStorage
     }
   });
+
+  // const {
+  //   contract: { account, userStorage }
+  // } = getState();
+
+  const userId = await userStorage.methods.addresses(accounts[0]).call();
+  const profile = await userStorage.methods.profiles(userId).call();
+
+  const user = {
+    id: userId,
+    username: web3.utils.toAscii(profile.username),
+    firstName: web3.utils.toAscii(profile.firstName),
+    lastName: web3.utils.toAscii(profile.lastName),
+    bio: profile.bio,
+    gravatarEmail: profile.gravatarEmail
+  };
+
+  dispatch({
+    type: ContractActionTypes.GET_LOGGED_IN_USER_SUCCESS,
+    payload: user
+  });
 };
 
 export const createUser = (params) => async (dispatch, getState) => {
@@ -77,31 +98,6 @@ export const createUser = (params) => async (dispatch, getState) => {
   dispatch({ type: ContractActionTypes.CREATE_USER_END });
 };
 
-export const getLoggedInUser = () => async (dispatch, getState) => {
-  dispatch({ type: ContractActionTypes.GET_LOGGED_IN_USER_START });
-
-  const {
-    contract: { account, userStorage }
-  } = getState();
-
-  const userId = await userStorage.methods.addresses(account).call();
-  const profile = await userStorage.methods.profiles(userId).call();
-
-  const user = {
-    id: userId,
-    username: web3.utils.toAscii(profile.username),
-    firstName: web3.utils.toAscii(profile.firstName),
-    lastName: web3.utils.toAscii(profile.lastName),
-    bio: profile.bio,
-    gravatarEmail: profile.gravatarEmail
-  };
-
-  dispatch({
-    type: ContractActionTypes.GET_LOGGED_IN_USER_SUCCESS,
-    payload: user
-  });
-};
-
 export const getUser = (userId) => async (dispatch, getState) => {
   dispatch({ type: ContractActionTypes.GET_USER_START });
 
@@ -111,9 +107,27 @@ export const getUser = (userId) => async (dispatch, getState) => {
 
   const profile = await userStorage.methods.profiles(userId).call();
 
-  console.log('Profile: ', web3.utils.toAscii(profile.username));
-
   dispatch({ type: ContractActionTypes.GET_USER_START });
+};
+
+export const getTweetsFromUser = (userId) => async (dispatch, getState) => {
+  dispatch({ type: ContractActionTypes.GET_ALL_TWEETS_START });
+
+  const {
+    contract: { tweetStorage }
+  } = getState();
+
+  const tweetIds = await tweetStorage.methods
+    .getTweetIdsFromUser(userId)
+    .call();
+
+  const tweetPromises = tweetIds.map(async (tweetId) => {
+    return await tweetStorage.methods.tweets(tweetId).call();
+  });
+
+  const tweets = await Promise.all(tweetPromises);
+
+  dispatch({ type: ContractActionTypes.GET_ALL_TWEETS_END, payload: tweets });
 };
 
 export const createTweet = (text) => async (dispatch, getState) => {
@@ -142,7 +156,7 @@ export const getTweet = (tweetId) => async (dispatch, getState) => {
   } = getState();
 
   const tweet = await tweetStorage.methods.tweets(tweetId).call();
-  console.log('Tweet: ', tweet);
+  // console.log('Tweet: ', tweet);
 
   dispatch({ type: ContractActionTypes.GET_TWEET_END });
 };

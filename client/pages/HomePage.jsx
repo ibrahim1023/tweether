@@ -8,24 +8,15 @@ import { Page, Center } from './components/Layout';
 
 import MetaMaskIcon from '../icons/metamask.svg';
 
-import {
-  loadContracts,
-  getLoggedInUser
-} from '../redux/reducers/contract/contract.actions';
+import { loadContracts } from '../redux/reducers/contract/contract.actions';
 
 const HomePage = () => {
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const dispatch = useDispatch();
 
-  const { userStorage } = useSelector((state) => state.contract);
-
   useEffect(() => {
     dispatch(loadContracts());
-
-    if (userStorage) {
-      dispatch(getLoggedInUser());
-    }
-  }, [dispatch, userStorage]);
+  }, []);
 
   const toggleRegisterModal = async () => {
     setShowRegisterModal((prevState) => !prevState);

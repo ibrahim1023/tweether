@@ -12,6 +12,7 @@ const INITIAL_STATE_CONTRACT = {
 const INITIAL_STATE_USER = {
   loading: false,
   user: null,
+  tweets: null,
   loggedIn: false
 };
 
@@ -42,6 +43,10 @@ export const userReducer = (state = INITIAL_STATE_USER, action) => {
       return { ...state, loading: true };
     case ContractActionTypes.GET_LOGGED_IN_USER_SUCCESS:
       return { ...state, loading: false, user: action.payload, loggedIn: true };
+    case ContractActionTypes.GET_ALL_TWEETS_START:
+      return { ...state, loading: true };
+    case ContractActionTypes.GET_ALL_TWEETS_END:
+      return { ...state, loading: false, tweets: action.payload };
     default:
       return { ...state };
   }
