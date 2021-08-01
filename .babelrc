@@ -1,0 +1,8 @@
+// {
+//   "plugins": ["styled-jsx/babel"]
+// }
+
+{
+  "presets": ["@babel/env", "next/babel"],
+  "plugins": ["inline-react-svg"]
+}
